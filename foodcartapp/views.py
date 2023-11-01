@@ -1,12 +1,11 @@
-import json
-
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.templatetags.static import static
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Order, Product
+from .models import Order, Product, OrderElements
 
 
 def banners_list_api(request):
@@ -63,16 +62,26 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    request = json.loads(request.body.decode())
-    order = Order.objects.create(
-        firstname=request['firstname'],
-        lastname=request['lastname'],
-        phone_number=request['phonenumber'],
-        address=request['address'],
-    )
-    for product in request['products']:
-        order.orders.create(
-            product=Product.objects.get(id=product['product']),
-            count=product['quantity']
+    request = request.data
+    if not request.get('products'):
+        return Response({'error': 'Products is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not isinstance(request.get('products'), list):
+        return Response({'error': 'Products is not a list'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        order = Order.objects.create(
+            firstname=request.get('firstname'),
+            lastname=request.get('lastname'),
+            phone_number=request.get('phonenumber'),
+            address=request.get('address'),
         )
-    return Response()
+
+        for product in request.get('products'):
+            OrderElements.objects.create(
+                order=order,
+                product=Product.objects.get(id=product.get('product')),
+                count=product.get('quantity'),
+            )
+        return Response({'Status': '200'})
+    except ValueError:
+        return Response({'error': 'ValueError'}, status=status.HTTP_400_BAD_REQUEST)
