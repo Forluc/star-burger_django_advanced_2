@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.templatetags.static import static
+from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -67,6 +68,33 @@ def register_order(request):
         return Response({'error': 'Products is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
     elif not isinstance(request.get('products'), list):
         return Response({'error': 'Products is not a list'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    product_count = Product.objects.count()
+    for product in request.get('products'):
+        if product['product'] > product_count or product['product'] < 0:
+            return Response({'error': 'Product id not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.get('firstname'):
+        return Response({'error': 'Firstname is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not isinstance(request.get('firstname'), str):
+        return Response({'error': 'Firstname is not a string'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.get('lastname'):
+        return Response({'error': 'Lastname is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not isinstance(request.get('lastname'), str):
+        return Response({'error': 'Lastname is not a string'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.get('phonenumber'):
+        return Response({'error': 'Phonenumber is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not isinstance(request.get('phonenumber'), str):
+        return Response({'error': 'Phonenumber is not a string'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not PhoneNumber.from_string(phone_number=request.get('phonenumber'), region='ru').is_valid():
+        return Response({'error': 'Phonenumber is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.get('address'):
+        return Response({'error': 'Address is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    elif not isinstance(request.get('address'), str):
+        return Response({'error': 'Address is not a string'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         order = Order.objects.create(
