@@ -5,8 +5,9 @@ from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer, ValidationError
 
-from .models import Order, Product, OrderElements
+from .models import Order, Product, OrderElement
 
 
 def banners_list_api(request):
@@ -61,55 +62,35 @@ def product_list_api(request):
     })
 
 
+class OrderElementSerializer(ModelSerializer):
+    class Meta:
+        model = OrderElement
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderElementSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+
+
 @api_view(['POST'])
 def register_order(request):
-    request = request.data
-    if not request.get('products'):
-        return Response({'error': 'Products is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not isinstance(request.get('products'), list):
-        return Response({'error': 'Products is not a list'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    product_count = Product.objects.count()
-    for product in request.get('products'):
-        if product['product'] > product_count or product['product'] < 0:
-            return Response({'error': 'Product id not found'}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    products_fields = serializer.validated_data['products']
 
-    if not request.get('firstname'):
-        return Response({'error': 'Firstname is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not isinstance(request.get('firstname'), str):
-        return Response({'error': 'Firstname is not a string'}, status=status.HTTP_400_BAD_REQUEST)
+    order = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address'],
+    )
+    products = [OrderElement(order=order, **fields) for fields in products_fields]
+    OrderElement.objects.bulk_create(products)
 
-    if not request.get('lastname'):
-        return Response({'error': 'Lastname is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not isinstance(request.get('lastname'), str):
-        return Response({'error': 'Lastname is not a string'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if not request.get('phonenumber'):
-        return Response({'error': 'Phonenumber is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not isinstance(request.get('phonenumber'), str):
-        return Response({'error': 'Phonenumber is not a string'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not PhoneNumber.from_string(phone_number=request.get('phonenumber'), region='ru').is_valid():
-        return Response({'error': 'Phonenumber is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if not request.get('address'):
-        return Response({'error': 'Address is empty or null or does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    elif not isinstance(request.get('address'), str):
-        return Response({'error': 'Address is not a string'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        order = Order.objects.create(
-            firstname=request.get('firstname'),
-            lastname=request.get('lastname'),
-            phone_number=request.get('phonenumber'),
-            address=request.get('address'),
-        )
-
-        for product in request.get('products'):
-            OrderElements.objects.create(
-                order=order,
-                product=Product.objects.get(id=product.get('product')),
-                count=product.get('quantity'),
-            )
-        return Response({'Status': '200'})
-    except ValueError:
-        return Response({'error': 'ValueError'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({
+        'order_id': order.id,
+    })
