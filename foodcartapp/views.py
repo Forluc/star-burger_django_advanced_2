@@ -69,11 +69,11 @@ class OrderElementSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderElementSerializer(many=True, allow_empty=False)
+    products = OrderElementSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @api_view(['POST'])
@@ -91,6 +91,4 @@ def register_order(request):
     products = [OrderElement(order=order, **fields) for fields in products_fields]
     OrderElement.objects.bulk_create(products)
 
-    return Response({
-        'order_id': order.id,
-    })
+    return Response(OrderSerializer(order).data)
