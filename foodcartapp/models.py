@@ -141,10 +141,10 @@ class RestaurantMenuItem(models.Model):
 
 class OrderElement(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ', related_name='orders')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар',
-                                related_name='products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар', related_name='products')
     quantity = models.IntegerField('Количество')
 
     class Meta:
         verbose_name = 'Элемент заказа'
         verbose_name_plural = 'Элементы заказа'
+    
