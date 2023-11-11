@@ -11,12 +11,14 @@ class OrderStatusChoice(models.TextChoices):
 
 
 class Order(models.Model):
+    status = models.CharField(verbose_name='Статус заказа', max_length=2, choices=OrderStatusChoice.choices,
+                              db_index=True, default=OrderStatusChoice.MANAGER)
     firstname = models.CharField(verbose_name='Имя', max_length=20)
     lastname = models.CharField(verbose_name='Фамилия', max_length=20)
     phonenumber = PhoneNumberField(verbose_name='Телефон', db_index=True)
     address = models.TextField(verbose_name='Адрес доставки')
-    status = models.CharField(verbose_name='Статус заказа', max_length=2, choices=OrderStatusChoice.choices,
-                              db_index=True, default=OrderStatusChoice.MANAGER)
+
+    comment = models.TextField(verbose_name='Комментарий', blank=True)
 
     class Meta:
         verbose_name = 'заказ'
