@@ -4,16 +4,21 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 
 
-class OrderStatusChoice(models.TextChoices):
-    MANAGER = 'M', 'Передан менеджеру'
-    RESTAURANT = 'R', 'Передан ресторану'
-    COURIER = 'C', 'Передан курьеру'
-    PROCESSED = 'P', 'Обработанный'
-
-
 class Order(models.Model):
-    status = models.CharField(verbose_name='Статус заказа', max_length=2, choices=OrderStatusChoice.choices,
-                              db_index=True, default=OrderStatusChoice.MANAGER)
+    class StatusChoice(models.TextChoices):
+        MANAGER = 'M', 'Передан менеджеру'
+        RESTAURANT = 'R', 'Передан ресторану'
+        COURIER = 'C', 'Передан курьеру'
+        PROCESSED = 'P', 'Обработанный'
+
+    class PaymentChoice(models.TextChoices):
+        CASH = 'C', 'Наличные'
+        NONCASH = 'N', 'Безналичные'
+
+    status = models.CharField(verbose_name='Статус заказа', max_length=2, choices=StatusChoice.choices,
+                              db_index=True, default=StatusChoice.MANAGER)
+    payment = models.CharField(verbose_name='Способ оплаты', max_length=2, choices=PaymentChoice.choices,
+                               db_index=True, default=PaymentChoice.CASH)
     firstname = models.CharField(verbose_name='Имя', max_length=20)
     lastname = models.CharField(verbose_name='Фамилия', max_length=20)
     phonenumber = PhoneNumberField(verbose_name='Телефон', db_index=True)
