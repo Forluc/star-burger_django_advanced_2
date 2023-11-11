@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 
 class OrderStatusChoice(models.TextChoices):
@@ -19,6 +20,9 @@ class Order(models.Model):
     address = models.TextField(verbose_name='Адрес доставки')
 
     comment = models.TextField(verbose_name='Комментарий', blank=True)
+    registered_at = models.DateTimeField('Зарегистрирован в', default=timezone.now)
+    called_at = models.DateTimeField('Позвонили в', db_index=True, null=True, blank=True)
+    delivered_at = models.DateTimeField('Доставлен в', db_index=True, null=True, blank=True)
 
     class Meta:
         verbose_name = 'заказ'
