@@ -91,9 +91,15 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.filter(status__in=['M', 'R', 'C']).annotate(
+    order_items = Order.objects.exclude(status='P').annotate(
         total_price=Sum(F('orders__price'))
-    ).order_by('status', 'id')
+    ).order_by('status', 'id').select_related('restaurant').get_restaurants_for_order()
+
+    for order in order_items:
+        if order.status == 'M' and order.restaurant:
+            order.status = 'R'
+            order.save()
+
     return render(request, template_name='order_items.html', context={
         'order_items': order_items
     })

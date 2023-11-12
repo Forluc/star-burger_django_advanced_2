@@ -4,6 +4,21 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 
 
+class OrderQuerySet(models.QuerySet):
+    def get_restaurants_for_order(self):
+        menu_items = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
+
+        for order in self:
+            restaurants = []
+            for ordered_product in order.orders.values('product'):
+                restaurants.append(
+                    [menu_item.restaurant for menu_item in menu_items
+                     if ordered_product['product'] == menu_item.product.id]
+                )
+            order.selected_restaurants = restaurants[0]
+        return self
+
+
 class Order(models.Model):
     class StatusChoice(models.TextChoices):
         MANAGER = 'M', 'Передан менеджеру'
@@ -19,6 +34,8 @@ class Order(models.Model):
                               db_index=True, default=StatusChoice.MANAGER)
     payment = models.CharField(verbose_name='Способ оплаты', max_length=2, choices=PaymentChoice.choices,
                                db_index=True, default=PaymentChoice.CASH)
+    restaurant = models.ForeignKey('Restaurant', verbose_name='Ресторан', on_delete=models.CASCADE, blank=True,
+                                   null=True, related_name='restaurants')
     firstname = models.CharField(verbose_name='Имя', max_length=20)
     lastname = models.CharField(verbose_name='Фамилия', max_length=20)
     phonenumber = PhoneNumberField(verbose_name='Телефон', db_index=True)
@@ -28,6 +45,8 @@ class Order(models.Model):
     registered_at = models.DateTimeField('Зарегистрирован в', default=timezone.now)
     called_at = models.DateTimeField('Позвонили в', db_index=True, null=True, blank=True)
     delivered_at = models.DateTimeField('Доставлен в', db_index=True, null=True, blank=True)
+
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'заказ'
