@@ -8,7 +8,10 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.models import Product, Restaurant, Order
-from restaurateur.func import calculate_distance
+from location.func import get_coordinates
+from location.models import Location
+
+from geopy.distance import distance
 
 
 class Login(forms.Form):
@@ -93,24 +96,31 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     restaurants = Restaurant.objects.all()
+    locations = Location.objects.all()
     order_items = Order.objects.exclude(status='P').select_related('restaurant').prefetch_related(
         'orders__product').annotate(
         total_price=Sum(F('orders__price'))
-    ).order_by('status', 'id').get_restaurants_for_order()
+    ).order_by('status', 'id').get_restaurants_for_order(restaurants)
 
-    for item in order_items:
+    restaurant_locations = {}
+    for restaurant in restaurants:
+        location = get_coordinates(restaurant.address, locations)
+        restaurant_locations[restaurant] = location
+
+    for order in order_items:
+        order_location = get_coordinates(order.address, locations)
         suitable_restaurants_by_km = []
-        for restaurant in item.selected_restaurants:
-            distance = calculate_distance(restaurant, item.address)
-            if distance is None:
-                item.selected_restaurants = None
+        for restaurant in order.selected_restaurants:
+            restaurant_location = restaurant_locations.get(restaurant)
+            if order_location is None or restaurant_location is None:
+                order.selected_restaurants = None
                 break
             suitable_restaurants_by_km.append(
                 {'restaurant': restaurant.name,
-                 'distance': round(distance, 3)
+                 'distance': round(distance(order_location, restaurant_location).km, 3)
                  }
             )
-        item.selected_restaurants = sorted(suitable_restaurants_by_km, key=lambda x: x['distance'])
+        order.selected_restaurants = sorted(suitable_restaurants_by_km, key=lambda x: x['distance'])
 
     for order in order_items:
         if order.status == 'M' and order.restaurant:

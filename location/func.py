@@ -1,6 +1,8 @@
 import requests
-from geopy.distance import distance
+
 from django.conf import settings
+
+from location.models import Location
 
 
 def fetch_coordinates(address):
@@ -21,9 +23,17 @@ def fetch_coordinates(address):
     return lat, lon
 
 
-def calculate_distance(place_from, place_to):
-    place_from = fetch_coordinates(place_from)
-    place_to = fetch_coordinates(place_to)
-    if place_from is None or place_to is None:
+def get_coordinates(address, locations):
+    for location in locations:
+        if address == location.address:
+            lat, lon = location.lat, location.lon
+            return lat, lon
+
+    location = fetch_coordinates(address)
+
+    if location is None:
         return None
-    return distance(place_from, place_to).kilometers
+    else:
+        lat, lon = location[0], location[1]
+        Location.objects.create(address=address, lat=lat, lon=lon)
+        return lat, lon

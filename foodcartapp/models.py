@@ -5,17 +5,26 @@ from django.utils import timezone
 
 
 class OrderQuerySet(models.QuerySet):
-    def get_restaurants_for_order(self):
+    def get_restaurants_for_order(self, all_restaurants):
         menu_items = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
 
         for order in self:
-            restaurants = []
+            suitable_restaurants = []
             for ordered_product in order.orders.all():
-                restaurants.append(
+                suitable_restaurants.append(
                     [menu_item.restaurant for menu_item in menu_items
                      if ordered_product.product.id == menu_item.product.id]
                 )
-            order.selected_restaurants = restaurants[0]
+            capable_restaurants = []
+            for restaurant in all_restaurants:
+                amount = 0
+                for avalable_restaurant in suitable_restaurants:
+                    if restaurant in avalable_restaurant:
+                        amount += 1
+                if amount == len(suitable_restaurants):
+                    capable_restaurants.append(restaurant)
+
+            order.selected_restaurants = capable_restaurants
         return self
 
 
@@ -188,3 +197,6 @@ class OrderElement(models.Model):
     class Meta:
         verbose_name = 'Элемент заказа'
         verbose_name_plural = 'Элементы заказа'
+
+    def __str__(self):
+        return f'{self.order}-{self.product}'
