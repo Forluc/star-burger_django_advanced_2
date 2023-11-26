@@ -2,16 +2,15 @@ from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Sum, F
+from django.db.models import F, Sum
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
+from geopy.distance import distance
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Order, Product, Restaurant
 from location.func import get_coordinates
 from location.models import Location
-
-from geopy.distance import distance
 
 
 class Login(forms.Form):

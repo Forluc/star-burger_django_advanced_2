@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class OrderQuerySet(models.QuerySet):

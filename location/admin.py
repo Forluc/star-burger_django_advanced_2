@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from location.models import Location
 
 

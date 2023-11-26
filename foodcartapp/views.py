@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from .models import Order, Product, OrderElement
+from .models import Order, OrderElement, Product
 
 
 def banners_list_api(request):
