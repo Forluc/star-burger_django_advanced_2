@@ -37,14 +37,16 @@
         <td>{{ item.comment }}</td>
         <td>
           {% if item.restaurant %}
-            {{ item.restaurant.name }}
+            Готовит {{ item.restaurant.name }}
+          {% elif not item.selected_restaurants %}
+            Ошибка определения координат
           {% else %}
             <details style="cursor: pointer;">
               <summary>
                 Может быть приготовлен ресторанами:
               </summary>
               {% for restaurant in item.selected_restaurants %}
-                <li>{{ restaurant.name }}</li>
+                <li>{{ restaurant.restaurant }} - {{ restaurant.distance }} км</li>
               {% endfor %}
             </details>
           {%endif%}

@@ -10,10 +10,10 @@ class OrderQuerySet(models.QuerySet):
 
         for order in self:
             restaurants = []
-            for ordered_product in order.orders.values('product'):
+            for ordered_product in order.orders.all():
                 restaurants.append(
                     [menu_item.restaurant for menu_item in menu_items
-                     if ordered_product['product'] == menu_item.product.id]
+                     if ordered_product.product.id == menu_item.product.id]
                 )
             order.selected_restaurants = restaurants[0]
         return self

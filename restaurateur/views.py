@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.models import Product, Restaurant, Order
+from restaurateur.func import calculate_distance
 
 
 class Login(forms.Form):
@@ -91,9 +92,25 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.exclude(status='P').annotate(
+    restaurants = Restaurant.objects.all()
+    order_items = Order.objects.exclude(status='P').select_related('restaurant').prefetch_related(
+        'orders__product').annotate(
         total_price=Sum(F('orders__price'))
-    ).order_by('status', 'id').select_related('restaurant').get_restaurants_for_order()
+    ).order_by('status', 'id').get_restaurants_for_order()
+
+    for item in order_items:
+        suitable_restaurants_by_km = []
+        for restaurant in item.selected_restaurants:
+            distance = calculate_distance(restaurant, item.address)
+            if distance is None:
+                item.selected_restaurants = None
+                break
+            suitable_restaurants_by_km.append(
+                {'restaurant': restaurant.name,
+                 'distance': round(distance, 3)
+                 }
+            )
+        item.selected_restaurants = sorted(suitable_restaurants_by_km, key=lambda x: x['distance'])
 
     for order in order_items:
         if order.status == 'M' and order.restaurant:
