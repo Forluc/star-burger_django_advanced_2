@@ -1,14 +1,11 @@
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.templatetags.static import static
-from phonenumber_field.phonenumber import PhoneNumber
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer, ValidationError
 
 from .models import Order, OrderElement, Product
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -61,20 +58,6 @@ def product_list_api(request):
         'ensure_ascii': False,
         'indent': 4,
     })
-
-
-class OrderElementSerializer(ModelSerializer):
-    class Meta:
-        model = OrderElement
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderElementSerializer(many=True, allow_empty=False, write_only=True)
-
-    class Meta:
-        model = Order
-        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @transaction.atomic
