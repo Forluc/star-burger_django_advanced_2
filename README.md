@@ -53,11 +53,20 @@ python -m venv venv
 ```sh
 pip install -r requirements.txt
 ```
-Получите токен от [Yandex geocoder API](https://developer.tech.yandex.ru/) для карт JavaScript API и HTTP Геокодер.
-Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+
+Создать файл `.env` в каталоге `star_burger/` и определить переменные окружения:
+- `YANDEX_GEOCODER_API_TOKEN` - Получите токен от [Yandex geocoder API](https://developer.tech.yandex.ru/) для карт JavaScript API и HTTP Геокодер.
+- `SECRET_KEY` - Секретный ключ Django. Используется для обеспечения криптографической подписи и должен быть установлен на уникальное, непредсказуемое значение.
+- `DEBUG` - Логическое значение, которое включает/выключает режим отладки. Если ваше приложение выдает исключение, когда DEBUG имеет значение True, Django отобразит подробную обратную трассировку, включая множество метаданных о вашей среде, например все определенные на данный момент настройки Django (из settings.py).
+- `ALLOWED_HOSTS` - Список, состоящий из имен хостов/доменов, которые могут обслуживать этот сайт Django. Это мера безопасности для предотвращения атак по заголовку HTTP-хоста, которые возможны даже при многих, казалось бы, безопасных конфигурациях веб-сервера.
+- `ROLLBAR_TOKEN` - Получите токен [Rollbar](https://rollbar.com/) для отслеживания ошибок в программном коде веб-приложений.
+- `ROLLBAR_ENVIRONMENT` - Значение для отображения, где произошла ошибка(development, production и т.д.)
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_GEOCODER_API_TOKEN=66f7da5d-aaaa-bbbb-cccc-33876ae379ad
+DEBUG=True
+ROLLBAR_TOKEN=e2393e04674f54481111111
+ROLLBAR_ENVIRONMENT=development
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
@@ -145,9 +154,19 @@ Parcel будет следить за файлами в каталоге `bundle
 
 Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
 
-- `DEBUG` — дебаг-режим. Поставьте `False`.
-- `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
-- `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- `YANDEX_GEOCODER_API_TOKEN` - Получите токен от [Yandex geocoder API](https://developer.tech.yandex.ru/) для карт JavaScript API и HTTP Геокодер.
+- `SECRET_KEY` - Секретный ключ Django. Используется для обеспечения криптографической подписи и должен быть установлен на уникальное, непредсказуемое значение.
+- `DEBUG` - Логическое значение, которое включает/выключает режим отладки. Если ваше приложение выдает исключение, когда DEBUG имеет значение True, Django отобразит подробную обратную трассировку, включая множество метаданных о вашей среде, например все определенные на данный момент настройки Django (из settings.py).
+- `ALLOWED_HOSTS` - Список, состоящий из имен хостов/доменов, которые могут обслуживать этот сайт Django. Это мера безопасности для предотвращения атак по заголовку HTTP-хоста, которые возможны даже при многих, казалось бы, безопасных конфигурациях веб-сервера. Более подробно [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts).
+- `ROLLBAR_TOKEN` - Получите токен [Rollbar](https://rollbar.com/) для отслеживания ошибок в программном коде веб-приложений.
+- `ROLLBAR_ENVIRONMENT` - Значение для отображения, где произошла ошибка(development, production и т.д.)
+```sh
+SECRET_KEY=django-insecure-0if40nf4nf93n4
+YANDEX_GEOCODER_API_TOKEN=66f7da5d-aaaa-bbbb-cccc-33876ae379ad
+DEBUG=False
+ROLLBAR_TOKEN=e2393e04674f54481111111
+ROLLBAR_ENVIRONMENT=production
+```
 
 ## Цели проекта
 
