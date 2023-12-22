@@ -48,6 +48,14 @@ python -m venv venv
 - Windows: `.\venv\Scripts\activate`
 - MacOS/Linux: `source venv/bin/activate`
 
+В репозитории находится bash-скрипт `deploy_star_burger.sh`, запустив его он:
+- Обновит код репозитория
+- Установит библиотеки для Python и Node.js
+- Пересоберёт JS-код
+- Пересоберёт статику Django
+- Накатит миграции
+- Перезапустит сервисы Systemd
+- Сообщит об успешном завершении деплоя
 
 Установите зависимости в виртуальное окружение:
 ```sh
