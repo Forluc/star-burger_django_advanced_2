@@ -61,12 +61,14 @@ pip install -r requirements.txt
 - `ALLOWED_HOSTS` - Список, состоящий из имен хостов/доменов, которые могут обслуживать этот сайт Django. Это мера безопасности для предотвращения атак по заголовку HTTP-хоста, которые возможны даже при многих, казалось бы, безопасных конфигурациях веб-сервера.
 - `ROLLBAR_TOKEN` - Получите токен [Rollbar](https://rollbar.com/) для отслеживания ошибок в программном коде веб-приложений.
 - `ROLLBAR_ENVIRONMENT` - Значение для отображения, где произошла ошибка(development, production и т.д.)
+- `DB_URL` - Ссылка на БД Postgres в виде: postgres://USER:PASSWORD@HOST:PORT/NAME. [Более подробнее](https://github.com/jazzband/dj-database-url#url-schema)
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_GEOCODER_API_TOKEN=66f7da5d-aaaa-bbbb-cccc-33876ae379ad
 DEBUG=True
 ROLLBAR_TOKEN=e2393e04674f54481111111
 ROLLBAR_ENVIRONMENT=development
+DB_URL=postgres://USER:PASSWORD@HOST:PORT/NAME
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
@@ -160,12 +162,14 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` - Список, состоящий из имен хостов/доменов, которые могут обслуживать этот сайт Django. Это мера безопасности для предотвращения атак по заголовку HTTP-хоста, которые возможны даже при многих, казалось бы, безопасных конфигурациях веб-сервера. Более подробно [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts).
 - `ROLLBAR_TOKEN` - Получите токен [Rollbar](https://rollbar.com/) для отслеживания ошибок в программном коде веб-приложений.
 - `ROLLBAR_ENVIRONMENT` - Значение для отображения, где произошла ошибка(development, production и т.д.)
+- `DB_URL` - Ссылка на БД Postgres в виде: postgres://USER:PASSWORD@HOST:PORT/NAME. [Более подробнее](https://github.com/jazzband/dj-database-url#url-schema)
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_GEOCODER_API_TOKEN=66f7da5d-aaaa-bbbb-cccc-33876ae379ad
 DEBUG=False
 ROLLBAR_TOKEN=e2393e04674f54481111111
 ROLLBAR_ENVIRONMENT=production
+DB_URL=postgres://USER:PASSWORD@HOST:PORT/NAME
 ```
 
 ## Цели проекта
