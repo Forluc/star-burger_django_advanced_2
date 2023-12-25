@@ -21,7 +21,7 @@ curl --request POST \
   "rollbar_username": "User",
   "local_username": "User",
   "comment": "Deploy",
-  "status": "Succeeded"
+  "status": "succeeded"
 }'
 
 echo -e "\033[32mSucceeded"
