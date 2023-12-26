@@ -11,7 +11,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SECRET_KEY = env.str('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
 INSTALLED_APPS = [
@@ -41,9 +40,11 @@ MIDDLEWARE = [
     'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
+ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN')
+ROLLBAR_ENVIRONMENT = env.str('ROLLBAR_ENVIRONMENT')
 ROLLBAR = {
-    'access_token': env.str('ROLLBAR_TOKEN', 'default'),
-    'environment': env.str('ROLLBAR_ENVIRONMENT', 'default'),
+    'access_token': ROLLBAR_TOKEN if ROLLBAR_TOKEN else '',
+    'environment': ROLLBAR_ENVIRONMENT if ROLLBAR_ENVIRONMENT else '',
     'code_version': '1.0',
     'root': BASE_DIR,
 }
